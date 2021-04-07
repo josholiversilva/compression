@@ -24,15 +24,25 @@ class Huffman:
 
     def build(self):
         # creating tree from bottom up
-        while len(self.pq) > 1:
-            # get 2 lowest weights, then join these two 2 trees
-            least = self.pq.pop()
-            secondLeast = self.pq.pop()
-            currRootVal = least[0] + secondLeast[0]
-            currRoot = Node(currRootVal)
-            currRoot.left, currRoot.right = least[1], secondLeast[1]
-            self.pq.append((currRootVal,currRoot))
-            #print(currRoot.val,currRoot.left.val,currRoot.right.val)
+        nodeCount = len(self.lookup)
+        treeRuns = math.log2(nodeCount)
+        done = collections.deque([2,1])
+        f = collections.deque([1,3])
+        print('Number of chars: {}'.format(nodeCount))
+        for treeRun in range(math.ceil(treeRuns)):
+            done = collections.deque([])
+            print('----------------- {} ----------------'.format(treeRun))
+            while len(self.pq) > 1:
+                # get 2 lowest weights, then join these two 2 trees
+                least = self.pq.pop()
+                secondLeast = self.pq.pop()
+                currRootVal = least[0] + secondLeast[0]
+                currRoot = Node(currRootVal)
+                currRoot.left, currRoot.right = least[1], secondLeast[1]
+                #self.pq.append((currRootVal,currRoot))
+                done.appendleft((currRootVal,currRoot))
+                print(currRoot.val,currRoot.left.val,currRoot.right.val)
+            self.pq += done
 
         return self.pq[0] if len(self.pq) == 1 else collections.deque([])
 
@@ -72,7 +82,6 @@ class Huffman:
             if str(node.val) == char:
                 encodedString.append(encode)
                 return True
-
             if traverseHuffman(char, node.left, encode+"0"):
                 return True
             if traverseHuffman(char, node.right, encode+"1"):
@@ -82,20 +91,20 @@ class Huffman:
 
         for char in self.inputString:
             traverseHuffman(char)
-            print(char, str(encodedString))
-
+            print(char, str(encodedString[-1]))
         return ''.join(encodedString)
 
-    
     def huffDecode(self,encodedString):
         pass
 
-inputString = sys.argv[1] if len(sys.arv[1]) > 1 else ""
+inputString = sys.argv[1] if len(sys.argv[1]) > 1 else ""
 
 huffman = Huffman(inputString)
+print()
+print()
 huffman.build()
 #huffman.printTreeArray()
 print()
 print()
-print()
 print("Encoded String: {}".format(huffman.huffEncode()))
+#huffman.printTreeArray()
