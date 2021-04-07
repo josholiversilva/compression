@@ -1,6 +1,5 @@
 # lossless data compression
 import collections
-import heapq
 import math
 import sys
 
@@ -30,6 +29,7 @@ class Huffman:
         f = collections.deque([1,3])
         print('Number of chars: {}'.format(nodeCount))
         # After forming subtrees, continue until we have 1 root node of all subtrees
+        # O(t)*(O(logq)+O(q)) = O(t*qlogq)
         for treeRun in range(math.ceil(treeRuns)):
             done = collections.deque([])
             print('----------------- {} ----------------'.format(treeRun))
@@ -47,7 +47,7 @@ class Huffman:
                 print(currRoot.val,currRoot.left.val,currRoot.right.val)
             self.pq += done
 
-            # Missed a value (when nodes), must put in correct spot for next queue subtree execution
+            # Missed a value (when odd nodes), must put in correct spot for next queue subtree execution
             x = 0
             if len(self.pq) > x+1:
                 while self.pq[x][0] < self.pq[x+1][0]:
@@ -109,7 +109,28 @@ class Huffman:
         return ''.join(encodedString)
 
     def huffDecode(self,encodedString):
-        pass
+        if len(self.pq) != 1:
+            print("Must Build Huffman Tree Before Encoding")
+            return None
+
+        decodedString = []
+        def traverseHuffman(encodedString,node=self.pq[0][1]):
+            if not node.left and not node.right:
+                decodedString.append(node.val)
+                return 0
+
+            if encodedString[0] == "0":
+                return traverseHuffman(encodedString[1:],node.left)+1
+            else:
+                return traverseHuffman(encodedString[1:],node.right)+1
+
+        # required inputs: encodedString, self.lookup, self.pq
+        while encodedString:
+            print(encodedString, decodedString)
+            depth = traverseHuffman(encodedString,self.pq[0][1])
+            encodedString = encodedString[depth:]
+
+        return ''.join(decodedString)
 
 inputString = sys.argv[1] if len(sys.argv[1]) > 1 else ""
 
@@ -120,5 +141,9 @@ huffman.build()
 #huffman.printTreeArray()
 print()
 print()
-print("Encoded String: {}".format(huffman.huffEncode()))
+encoded = huffman.huffEncode()
+print("Encoded String: {}".format(encoded))
+print()
+decoded = huffman.huffDecode(encoded)
+print("Decoded String: {}".format(decoded))
 #huffman.printTreeArray()
