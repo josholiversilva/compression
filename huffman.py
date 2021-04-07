@@ -29,9 +29,12 @@ class Huffman:
         done = collections.deque([2,1])
         f = collections.deque([1,3])
         print('Number of chars: {}'.format(nodeCount))
+        # After forming subtrees, continue until we have 1 root node of all subtrees
         for treeRun in range(math.ceil(treeRuns)):
             done = collections.deque([])
             print('----------------- {} ----------------'.format(treeRun))
+            print(self.pq)
+            # Form subtrees of nodes
             while len(self.pq) > 1:
                 # get 2 lowest weights, then join these two 2 trees
                 least = self.pq.pop()
@@ -44,7 +47,18 @@ class Huffman:
                 print(currRoot.val,currRoot.left.val,currRoot.right.val)
             self.pq += done
 
-        return self.pq[0] if len(self.pq) == 1 else collections.deque([])
+            # Missed a value (when nodes), must put in correct spot for next queue subtree execution
+            x = 0
+            if len(self.pq) > x+1:
+                while self.pq[x][0] < self.pq[x+1][0]:
+                    self.pq[x], self.pq[x+1] = self.pq[x+1], self.pq[x]
+                    x += 1
+                    if len(self.pq) == x+1:
+                        break
+
+        print()
+        print("End Node: {}".format(self.pq[0]))
+        return self.pq[0] 
 
     def printTreeArray(self):
         if len(self.pq) < 1:
