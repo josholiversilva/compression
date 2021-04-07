@@ -126,24 +126,27 @@ class Huffman:
 
         # required inputs: encodedString, self.lookup, self.pq
         while encodedString:
-            print(encodedString, decodedString)
             depth = traverseHuffman(encodedString,self.pq[0][1])
             encodedString = encodedString[depth:]
+            print(encodedString, decodedString)
 
         return ''.join(decodedString)
 
-inputString = sys.argv[1] if len(sys.argv[1]) > 1 else ""
+encode = sys.argv[1] if len(sys.argv) > 1 else ""
+inputString = sys.argv[2] if len(sys.argv) > 2 else ""
+decode = sys.argv[3] if len(sys.argv) > 3 else ""
 
-huffman = Huffman(inputString)
-print()
-print()
-huffman.build()
-#huffman.printTreeArray()
-print()
-print()
-encoded = huffman.huffEncode()
-print("Encoded String: {}".format(encoded))
-print()
-decoded = huffman.huffDecode(encoded)
-print("Decoded String: {}".format(decoded))
-#huffman.printTreeArray()
+if encode and inputString:
+    huffman = Huffman(inputString)
+    print()
+    print()
+    huffman.build()
+    print()
+    print()
+    encoded = huffman.huffEncode()
+    print("Encoded String: {}".format(encoded))
+    print()
+    print()
+    if decode:
+        decoded = huffman.huffDecode(encoded)
+        print("Decoded String: {}".format(decoded))
