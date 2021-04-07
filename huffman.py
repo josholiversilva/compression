@@ -30,35 +30,34 @@ class Huffman:
         print('Number of chars: {}'.format(nodeCount))
         # After forming subtrees, continue until we have 1 root node of all subtrees
         # O(t)*(O(logq)+O(q)) = O(t*qlogq)
-        for treeRun in range(math.ceil(treeRuns)):
-            done = collections.deque([])
-            print('----------------- {} ----------------'.format(treeRun))
-            print(self.pq)
+        #for treeRun in range(math.ceil(treeRuns)):
+            #done = collections.deque([])
+            #print('----------------- {} ----------------'.format(treeRun))
             # Form subtrees of nodes
-            while len(self.pq) > 1:
-                # get 2 lowest weights, then join these two 2 trees
-                least = self.pq.pop()
-                secondLeast = self.pq.pop()
-                currRootVal = least[0] + secondLeast[0]
-                currRoot = Node(currRootVal)
-                currRoot.left, currRoot.right = least[1], secondLeast[1]
-                #self.pq.append((currRootVal,currRoot))
-                done.appendleft((currRootVal,currRoot))
-                print(currRoot.val,currRoot.left.val,currRoot.right.val)
-            self.pq += done
+        while len(self.pq) > 1:
+            # get 2 lowest weights, then join these two 2 trees
+            least = self.pq.pop()
+            secondLeast = self.pq.pop()
+            currRootVal = least[0] + secondLeast[0]
+            currRoot = Node(currRootVal)
+            currRoot.left, currRoot.right = least[1], secondLeast[1]
+            self.pq.append((currRootVal,currRoot))
+            #done.appendleft((currRootVal,currRoot))
+            print(currRoot.val,currRoot.left.val,currRoot.right.val)
+            #self.pq += done
 
             # Missed a value (when odd nodes), must put in correct spot for next queue subtree execution
-            x = 0
-            if len(self.pq) > x+1:
-                while self.pq[x][0] < self.pq[x+1][0]:
-                    self.pq[x], self.pq[x+1] = self.pq[x+1], self.pq[x]
-                    x += 1
-                    if len(self.pq) == x+1:
-                        break
+            #x = 0
+            #if len(self.pq) > x+1:
+                #while self.pq[x][0] < self.pq[x+1][0]:
+                    #self.pq[x], self.pq[x+1] = self.pq[x+1], self.pq[x]
+                    #x += 1
+                    #if len(self.pq) == x+1:
+                        #break
 
         print()
-        print("End Node: {}".format(self.pq[0]))
-        return self.pq[0] 
+        #print("End Node: {}".format(self.pq[0][1]))
+        return self.pq[0][1] 
 
     def printTreeArray(self):
         if len(self.pq) < 1:
@@ -96,17 +95,20 @@ class Huffman:
             if str(node.val) == char:
                 encodedString.append(encode)
                 return True
-            if traverseHuffman(char, node.left, encode+"0"):
-                return True
+
             if traverseHuffman(char, node.right, encode+"1"):
+                return True
+            if traverseHuffman(char, node.left, encode+"0"):
                 return True
 
             return False
 
+        encodedMap = {}
         for char in self.inputString:
             traverseHuffman(char)
-            print(char, str(encodedString[-1]))
-        return ''.join(encodedString)
+            encodedMap[char] = encodedString[-1]
+
+        return (''.join(encodedString), encodedMap)
 
     def huffDecode(self,encodedString):
         if len(self.pq) != 1:
@@ -136,6 +138,8 @@ encode = sys.argv[1] if len(sys.argv) > 1 else ""
 inputString = sys.argv[2] if len(sys.argv) > 2 else ""
 decode = sys.argv[3] if len(sys.argv) > 3 else ""
 
+lookup = collections.Counter(inputString)
+
 if encode and inputString:
     huffman = Huffman(inputString)
     print()
@@ -143,10 +147,30 @@ if encode and inputString:
     huffman.build()
     print()
     print()
-    encoded = huffman.huffEncode()
+    encoded, encodedMap = huffman.huffEncode()
+    print("Encode Map: {}".format(encodedMap))
     print("Encoded String: {}".format(encoded))
     print()
     print()
     if decode:
         decoded = huffman.huffDecode(encoded)
         print("Decoded String: {}".format(decoded))
+
+# Entropy Calculation
+
+# OG entropy
+eD = [x/len(inputString) for x in lookup.values()] # Distribution
+eS = [-math.log2(y) for y in eD] # self-information
+eH = sum([eD[z]*eS[z] for z in range(len(lookup))]) # Entropy
+# Encoded Entropy
+D = [1/(len(x)*2) for x in encodedMap.values()]
+S = [-math.log2(y) for y in D]
+H = sum([D[z]*S[z] for z in range(len(lookup))])
+
+# Entropy - how much info the data contains
+# Compressed Data has high entropy: Fewer bits for same info
+print()
+print('--------- Entropy Comparison --------')
+print("OG Entropy: {}".format(eH))
+print("Encoded Entropy: {}".format(H))
+print('-------------------------------------')
