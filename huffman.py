@@ -9,7 +9,9 @@ class Node:
         self.right = right
         self.val = val
 
+# lossless data compression
 # most freq = smalles codes, least freq = longer codes
+# start with all individual nodes & build bottom-up
 # greedy approach - merge 2 subtrees with least weight at each iteration
 #                   new subtree into the priority queue 
 class Huffman:
@@ -167,10 +169,10 @@ D = [1/(len(x)*2) for x in encodedMap.values()]
 S = [-math.log2(y) for y in D]
 H = sum([D[z]*S[z] for z in range(len(lookup))])
 
-# Entropy - how much info the data contains
-# Compressed Data has high entropy: Fewer bits for same info
+# Entropy - avg how much info the data contains
+# Compressed Data has higher entropy: Fewer bits for same info
 print()
 print('--------- Entropy Comparison --------')
 print("OG Entropy: {}".format(eH))
-print("Encoded Entropy: {}".format(H))
+print("Huffman Entropy: {}".format(H))
 print('-------------------------------------')
