@@ -2,6 +2,7 @@
 import collections
 import math
 import sys
+import numpy
 
 class Node:
     def __init__(self,val,left=None,right=None):
@@ -28,34 +29,33 @@ class Arithmetic:
             self.pMap[x] = probabilityRange
             count += y/len(inputString)
 
-    def aencode(self ):
+    def aencode(self):
         encoded = []
         currPMap = dict(self.pMap)
-        lower,upper = (0,1)
-        currSum = upper-lower
-        def magnify(currSum, currPMap, lower, upper, inputString):
+        def magnify(currSum, currPMap, inputString):
             if not inputString:
                 return
 
             char = inputString[0]
-            lower,upper = tuple(currPMap[char])
-            print(self.pMap)
-            print("Current Char: {}\nCurr Range: {}".format(char,(lower,upper)))
-            prevUpper = lower
+            currLower,currUpper = tuple(currPMap[char])
+            encoded.append((currLower,currUpper))
+            print("Current Char: {}\nCurr Range: {}".format(char,(currLower,currUpper)))
+            prevUpper = currLower
             for c in currPMap:
-                currPMap[c] = (prevUpper,prevUpper+((upper-lower)/(1/(self.pMap[c][1]-self.pMap[c][0]))))
+                currPMap[c] = (numpy.longdouble(prevUpper),numpy.longdouble(prevUpper+((currUpper-currLower)/(1/(self.pMap[c][1]-self.pMap[c][0])))))
                 print(c,currPMap[c])
-                prevUpper = prevUpper+((upper-lower)/(1/(self.pMap[c][1]-self.pMap[c][0])))
+                prevUpper = numpy.longdouble(prevUpper+((currUpper-currLower)/(1/(self.pMap[c][1]-self.pMap[c][0]))))
 
-            print(prevUpper,upper)
+            print(prevUpper,currUpper)
             print()
-            magnify(upper-lower, currPMap, lower, upper, inputString[1:])
+            magnify(currUpper-currLower, currPMap, inputString[1:])
 
             return
 
-        return magnify(currSum, currPMap, lower, upper, inputString)
+        magnify(1,currPMap,self.inputString)
+        return encoded
 
-inputString = 'abbbaacdcaaa'
+inputString = 'abbbaacdcaaafjksdlfnvksjldkfvjkls'
 frequency = collections.Counter(inputString)
 eD = [x/len(inputString) for x in frequency.values()] # distribution of probabilities
 eS = [-math.log2(y) for y in eD]
@@ -63,4 +63,5 @@ eH = sum([eD[z]*eS[z] for z in range(len(eD))])
 #print(frequency, eD, eS, eH)
 
 arithmetic = Arithmetic(eD, inputString)
-arithmetic.aencode()
+encoded = arithmetic.aencode()
+print("Encoded List: {}".format(encoded))
